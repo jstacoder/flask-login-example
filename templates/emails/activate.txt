@@ -1,0 +1,7 @@
+Hola {{ username }},
+restablece tu contraseña.
+
+Pulsa en el siguiente enlace
+
+{{ token }}
+

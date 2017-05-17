@@ -1,0 +1,33 @@
+{% extends 'layouts/master.html' %}
+{% block title %}Login{% endblock %}
+{% block body %}
+<h1>Login</h1>
+<p>
+<form action="" method="post">
+	{% for campo in form %}
+		{% if campo.type != 'CSRFTokenField' %}
+			<div class="form-group{%if campo.errors %} has-error{% endif %}">
+			{{ campo.label }} 
+			{% if campo.type in ('StringField', 'PasswordField')  %}
+				{{ campo(class='form-control') }}
+			{% else %}
+				{{ campo() }}
+			{% endif %}
+			{% for error in campo.errors %}
+				<span class="help-block">{{ error }}</span>
+			{% endfor %}
+			</div>
+		{% else %}
+			{{ campo() }}
+		{% endif %}
+	{% endfor %}
+	<input type="submit" class="btn btn-success" value="Entrar">				
+</form>
+</p>
+<p>
+	<a href="{{ url_for('signup') }}" class="btn btn-primary">Regístrate</a>
+</p>
+<p>
+	<a href="{{ url_for('forgot_password') }}" class="btn btn-warning">Me he olvidado la contraseña</a>
+</p>
+{% endblock %}
