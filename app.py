@@ -2,11 +2,13 @@ from os import getenv
 from ast import literal_eval
 from flask import Flask, redirect, url_for, render_template, flash, session
 from functools import wraps
-from forms import LoginForm, SignupForm, EmailResetPasswordForm, ResetPasswordForm
+from forms import LoginForm, SignupForm, \
+        EmailResetPasswordForm, ResetPasswordForm
 from models import db, User
 from flask_mail import Mail, Message
 from uuid import uuid4
-from crypt import crypt, mksalt, METHOD_SHA512
+from werkzeug.security import generate_password_hash, \
+     check_password_hash
 
 # CONFIGURATIONS
 # Flask
@@ -64,9 +66,7 @@ def signup():
             my_user = User()
             form.populate_obj(my_user)
             # Encrypt password
-            my_user.password = crypt(
-                form.password.data, mksalt(METHOD_SHA512)
-            )
+            my_user.password = generate_password_hash(form.password.data)
             db.session.add(my_user)
             # Prepare the account activation email
             msg = Message(
@@ -180,9 +180,7 @@ def update_password(email, token):
     if my_user:
         if form.validate_on_submit():
             # Encrypt password
-            my_user.password = crypt(
-                    form.password.data, mksalt(METHOD_SHA512)
-                    )
+            my_user.password = generate_password_hash(form.password.data)
             # Update password
             db.session.add(my_user)
             db.session.commit()
@@ -202,11 +200,10 @@ def login():
     if form.validate_on_submit():
         # Validate email and password
         email = form.email.data
-        password = crypt(
-            form.password.data, mksalt(METHOD_SHA512)
-            )
-        my_user = User.query.filter_by(email=email, password=password).first()
-        if my_user:
+        my_user = User.query.filter_by(email=email).first()
+        if my_user and check_password_hash(
+                my_user.password,
+                form.password.data):
             # Login de usuario
             session['user'] = my_user.id
             return redirect(url_for('dashboard'))
