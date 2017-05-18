@@ -1,4 +1,5 @@
 from os import getenv
+from ast import literal_eval
 from flask import Flask, redirect, url_for, render_template, flash, session
 from functools import wraps
 from forms import LoginForm, SignupForm, EmailResetPasswordForm, ResetPasswordForm
@@ -11,7 +12,7 @@ from crypt import crypt, mksalt, METHOD_SHA512
 # Flask
 app = Flask(__name__)
 app.config['SECRET_KEY'] = getenv('SECRET_KEY')
-app.config['DEBUG'] = bool(getenv('DEBUG'))
+app.config['DEBUG'] = literal_eval(getenv('DEBUG'))
 
 # Database
 app.config['SQLALCHEMY_DATABASE_URI'] = getenv('SQLALCHEMY_DATABASE_URI')
