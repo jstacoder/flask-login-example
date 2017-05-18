@@ -3,8 +3,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
-import crypt
-import uuid
+from uuid import uuid4
 
 app = Flask(__name__)
 
@@ -18,7 +17,9 @@ manager.add_command('db', MigrateCommand)
 
 
 class User(db.Model):
-
+    '''
+    Table user
+    '''
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -28,15 +29,13 @@ class User(db.Model):
     is_active = db.Column(db.Boolean)
     token = db.Column(db.String(32), nullable=False, unique=False)
 
-    def __init__(self, username, email, password):
-        self.username = username
-        self.email = email
-        self.password = crypt.crypt(password, crypt.mksalt(crypt.METHOD_SHA512))
+    def __init__(self):
         self.is_active = False
-        self.token = str(uuid.uuid4()).replace('-', '')
+        self.token = str(uuid4()).replace('-', '')
 
     def __repr__(self):
         return '<User %r>' % self.username
+
 
 if __name__ == '__main__':
     manager.run()

@@ -4,8 +4,8 @@ from functools import wraps
 from forms import LoginForm, SignupForm, EmailResetPasswordForm, ResetPasswordForm
 from models import db, User
 from flask_mail import Mail, Message
-import uuid
-import crypt
+from uuid import uuid4
+from crypt import crypt, mksalt, METHOD_SHA512
 
 # CONFIGURATIONS
 # Flask
@@ -59,9 +59,13 @@ def signup():
     '''
     form = SignupForm()
     if form.validate_on_submit():
-        if User.query.filter_by(email=form.email.data).all():
+        if not User.query.filter_by(email=form.email.data).all():
             my_user = User()
             form.populate_obj(my_user)
+            # Encrypt password
+            my_user.password = crypt(
+                form.password.data, mksalt(METHOD_SHA512)
+            )
             db.session.add(my_user)
             # Prepare the account activation email
             msg = Message(
@@ -69,15 +73,15 @@ def signup():
                 sender='no-repy@' + getenv('DOMAIN'),
                 recipients=[my_user.email]
                 )
-            link = 'http://' + getenv('DOMAIN') + url_for('activate_account')
+            link = 'http://' + getenv('DOMAIN') + url_for('activate_account', token=my_user.token)
             msg.body = render_template(
                 'emails/activate.txt', username=my_user.username,
-                token=link + my_user.token
+                token=link
                 )
             msg.html = render_template(
                 'emails/activate.html',
                 username=my_user.username,
-                token=link + my_user.token
+                token=link
                 )
             try:
                 # Save new User
@@ -128,13 +132,16 @@ def forgot_password():
         my_user = User.query.filter_by(email=form.email.data).first()
         if my_user:
             # Generate new token
-            token = str(uuid.uuid4()).replace('-', '')
+            token = str(uuid4()).replace('-', '')
             # Update user token
             my_user.token = token
             db.session.add(my_user)
             db.session.commit()
             # Send email with token
-            link = 'http://' + getenv('DOMAIN') + url_for('update_password')
+            link = 'http://' + getenv('DOMAIN') + url_for(
+                    'update_password',
+                    email=my_user.email, token=token
+                    )
             msg = Message(
                 'Recover password',
                 sender='no-repy@' + getenv('DOMAIN'),
@@ -142,12 +149,12 @@ def forgot_password():
                 )
             msg.body = render_template(
                 'emails/forgot_password.txt', username=my_user.username,
-                token=link + my_user.token
+                token=link
                 )
             msg.html = render_template(
                 'emails/forgot_password.html',
                 username=my_user.username,
-                token=link + my_user.token
+                token=link
                 )
             mail.send(msg)
             flash('''
@@ -172,8 +179,8 @@ def update_password(email, token):
     if my_user:
         if form.validate_on_submit():
             # Encrypt password
-            my_user.password = crypt.crypt(
-                    form.password.data, crypt.mksalt(crypt.METHOD_SHA512)
+            my_user.password = crypt(
+                    form.password.data, mksalt(METHOD_SHA512)
                     )
             # Update password
             db.session.add(my_user)
@@ -194,9 +201,9 @@ def login():
     if form.validate_on_submit():
         # Validate email and password
         email = form.email.data
-        password = crypt.crypt(
-                form.password.data, crypt.mksalt(crypt.METHOD_SHA512)
-                )
+        password = crypt(
+            form.password.data, mksalt(METHOD_SHA512)
+            )
         my_user = User.query.filter_by(email=email, password=password).first()
         if my_user:
             # Login de usuario

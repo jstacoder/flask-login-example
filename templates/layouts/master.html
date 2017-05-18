@@ -1,9 +1,10 @@
+{% from 'helpers/_forms.html' import generate_fields with context %}
 <!DOCTYPE html>
 <html>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>{% block title %}{% endblock %} | Login example</title>
+		<title>{% block title %}{% endblock %} | Login system example</title>
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
 	</head>
 	<body>
@@ -17,7 +18,7 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			  </button>
-			  <a class="navbar-brand" href="#">Example Login</a>
+			  <a class="navbar-brand" href="/">Example Login</a>
 			</div>
 
 			<!-- Collect the nav links, forms, and other content for toggling -->

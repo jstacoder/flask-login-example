@@ -2,24 +2,91 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import DataRequired, Email, Length, EqualTo
 
+
 class LoginForm(FlaskForm):
-    email = StringField('E-mail', validators=[DataRequired('Necesito un E-mail'), Email('Debe tener un formato válido')])
-    password = PasswordField('Contraseña', validators=[DataRequired('No me has indicado una contraseña')])
+    '''
+    Form Login
+    '''
+    email = StringField(
+        'Email',
+        validators=[
+            DataRequired(),
+            Email()
+            ]
+        )
+    password = PasswordField(
+        'Password',
+        validators=[
+            DataRequired()
+            ]
+        )
 
 
 class SignupForm(FlaskForm):
-    username = StringField('Nombre de usuario', validators=[DataRequired('Debes indicarnos un nombre de usuario'), Length(5, 30, 'Debe estar entre 5 y 30 carácteres')])
-    email = StringField('E-mail', validators=[DataRequired('Necesito un E-mail'), Email('Debe tener un formato válido'), Length(1, 254, 'Es demasiado largo')])
-    password = PasswordField('Contraseña', validators=[DataRequired('No me has indicado una contraseña'), EqualTo('password_confirm', 'No coinciden las contraseñas')])
-    password_confirm = PasswordField('Repetir contraseña')
-    accept_tos = BooleanField('Aceptar condiciones', validators=[DataRequired('Necesito que aceptes mis condiciones. Aqui mando yo.')])
+    '''
+    Form signup
+    '''
+    username = StringField(
+        'Username',
+        validators=[
+            DataRequired(),
+            Length(5, 30, '''
+            You can not have less than 5 characters or more 30.
+            ''')
+            ]
+        )
+    email = StringField(
+        'Email',
+        validators=[
+            DataRequired(),
+            Email(),
+            Length(1, 254, 'Too long.')
+            ]
+        )
+    password = PasswordField(
+        'Password',
+        validators=[
+            DataRequired(),
+            EqualTo(
+                'password_confirm',
+                'Passwords are not the same.'
+                )
+            ]
+        )
+    password_confirm = PasswordField('Repeat password')
+    accept_tos = BooleanField(
+        'I accept the terms and conditions.',
+        validators=[
+            DataRequired('Please accept the terms and conditions.')
+            ]
+        )
 
 
 class EmailResetPasswordForm(FlaskForm):
-    email = StringField('E-mail', validators=[DataRequired('Necesito un E-mail'), Email('Debe tener un formato válido')])
+    '''
+    Form send email reset password
+    '''
+    email = StringField(
+        'Email',
+        validators=[
+            DataRequired(),
+            Email()
+            ]
+        )
 
 
 class ResetPasswordForm(FlaskForm):
-    password = PasswordField('Contraseña', validators=[DataRequired('No me has indicado una contraseña'), EqualTo('password_confirm', 'No coinciden las contraseñas')])
-    password_confirm = PasswordField('Repetir contraseña')
-
+    '''
+    Form update password
+    '''
+    password = PasswordField(
+        'Password',
+        validators=[
+            DataRequired(),
+            EqualTo(
+                'password_confirm',
+                'Passwords are not the same.'
+                )
+            ]
+        )
+    password_confirm = PasswordField('Repeat password')
