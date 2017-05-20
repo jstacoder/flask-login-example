@@ -10,9 +10,17 @@ class EmailFieldMixin(Form):
         'Email',
         validators=[
             DataRequired(),
-            Email()
+            Email(),
+            Length(1, 254, 'Too long.'),
         ]
     )
+
+class PasswordConfirmFieldMixin(Form):
+    """
+        mixin class to provide extra password field
+
+    """
+    password_confirm = PasswordField('Repeat password')
 
 class PasswordFieldMixin(Form):
     """
@@ -43,7 +51,7 @@ class LoginForm(FlaskForm, EmailFieldMixin, PasswordFieldMixin):
     Form Login
     '''
     
-class SignupForm(FlaskForm, EmailFieldMixin, PasswordFieldMixin):
+class SignupForm(FlaskForm, EmailFieldMixin, PasswordConfirmFieldMixin, PasswordFieldMixin):
     '''
     Form signup
     '''
@@ -58,7 +66,6 @@ class SignupForm(FlaskForm, EmailFieldMixin, PasswordFieldMixin):
             )
         ]
     )    
-    password_confirm = PasswordField('Repeat password')
     accept_tos = BooleanField(
         'I accept the terms and conditions.',
         validators=[
@@ -75,8 +82,8 @@ class EmailResetPasswordForm(FlaskForm, EmailFieldMixin):
     Form send email reset password
     '''
 
-class ResetPasswordForm(FlaskForm):
+class ResetPasswordForm(FlaskForm,PasswordConfirmFieldMixin):
     '''
     Form update password
     '''    
-    password_confirm = PasswordField('Repeat password')
+ 
